@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1606957372997.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "EBA51388",
+    "lastKnownWriteTime" : 1608184142,
+    "last_content_update" : 1608184142302,
+    "path" : "~/study/MortalityWithOnlyLabs/extras/tunedModelH2o.R",
+    "project_path" : "extras/tunedModelH2o.R",
+    "properties" : {
+        "cursorPosition" : "182,0",
+        "scrollLine" : "176",
+        "tempName" : "Untitled3"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

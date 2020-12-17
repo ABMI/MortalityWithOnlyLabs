@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1607913704415.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "BAC183F2",
+    "lastKnownWriteTime" : 1606958691,
+    "last_content_update" : 1606958691,
+    "path" : "~/study/MortalityWithOnlyLabs/inst/cohorts/JHCho_surgery_V6.json",
+    "project_path" : "inst/cohorts/JHCho_surgery_V6.json",
+    "properties" : {
+        "cursorPosition" : "934,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 3,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "json"
+}

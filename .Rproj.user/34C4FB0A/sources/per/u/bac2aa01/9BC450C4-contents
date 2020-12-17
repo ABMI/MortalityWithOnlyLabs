@@ -1,0 +1,37 @@
+library(PatientLevelPrediction)
+library(MortalityWithOnlyLabs)
+library(dplyr)
+library(glmnet)
+#install.packages("mice")
+# library(tidyr)
+
+#connection server
+# add details of your database setting:
+databaseName <- 'AUSOM'
+
+# add the cdm database schema with the data
+cdmDatabaseSchema <- 'cdmpv531.dbo'
+
+# add the work database schema this requires read/write privileges
+cohortDatabaseSchema <- 'cohortdb.dbo'
+
+# if using oracle please set the location of your temp schema
+oracleTempSchema <- NULL
+
+# the name of the table that will be created in cohortDatabaseSchema to hold the cohorts
+cohortTable <- 'MortalityWithOnlyLabs'
+
+# the location to save the prediction models results to:
+outputFolder <- '~/MortalityWithOnlyLabs'
+
+# add connection details:
+options(fftempdir = 'T:/fftemp')
+dbms <- "sql server"
+user <- 'jhcho'
+pw <- 'Survival12'
+server <- '128.1.99.58'
+
+connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
+                                                                server = server,
+                                                                user = user,
+                                                                password = pw)

@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1605227711257.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3778924674",
+    "id" : "3C2D2502",
+    "lastKnownWriteTime" : 1605234670,
+    "last_content_update" : 1605234670481,
+    "path" : "~/study/MortalityWithOnlyLabs/extras/execute.R",
+    "project_path" : "extras/execute.R",
+    "properties" : {
+        "cursorPosition" : "163,47",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

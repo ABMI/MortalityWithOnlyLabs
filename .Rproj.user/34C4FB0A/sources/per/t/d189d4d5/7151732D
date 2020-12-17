@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1606351741004.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "7151732D",
+    "lastKnownWriteTime" : 2318304130973564934,
+    "last_content_update" : 1606351741004,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "context" : "package:h2o:::h2o.auc"
+    },
+    "relative_order" : 7,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_code_browser"
+}

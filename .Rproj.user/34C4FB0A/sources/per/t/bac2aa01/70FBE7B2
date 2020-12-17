@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1605228739748.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "647205198",
+    "id" : "70FBE7B2",
+    "lastKnownWriteTime" : 1605228789,
+    "last_content_update" : 1605228789986,
+    "path" : "~/study/MortalityWithOnlyLabs/R/helpers.R",
+    "project_path" : "R/helpers.R",
+    "properties" : {
+        "cursorPosition" : "2,44",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

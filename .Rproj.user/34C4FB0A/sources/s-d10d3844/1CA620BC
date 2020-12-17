@@ -1,0 +1,23 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1606957366944.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "1CA620BC",
+    "lastKnownWriteTime" : 1608184162,
+    "last_content_update" : 1608184162210,
+    "path" : "~/study/MortalityWithOnlyLabs/extras/externalValidation.R",
+    "project_path" : "extras/externalValidation.R",
+    "properties" : {
+        "cursorPosition" : "223,0",
+        "scrollLine" : "164",
+        "tempName" : "Untitled1"
+    },
+    "relative_order" : 4,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}

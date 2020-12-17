@@ -1,0 +1,21 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1606351758014.000,
+    "dirty" : false,
+    "encoding" : "",
+    "folds" : "",
+    "hash" : "0",
+    "id" : "CF3BEE21",
+    "lastKnownWriteTime" : 4049127686271887731,
+    "last_content_update" : 1606351758014,
+    "path" : null,
+    "project_path" : null,
+    "properties" : {
+        "context" : "package:h2o:::h2o.glm"
+    },
+    "relative_order" : 6,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_code_browser"
+}
