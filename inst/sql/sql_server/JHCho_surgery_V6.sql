@@ -416,7 +416,7 @@ cteEnds (person_id, start_date, end_date) AS
   JOIN cteEndDates e ON c.person_id = e.person_id AND e.end_date >= c.start_date
   GROUP BY c.person_id, c.start_date
 )
-select person_id, dateadd(day, 3, min(start_date)) as start_date, end_date
+select person_id, start_date as start_date, end_date
 into #final_cohort
 from cteEnds
 group by person_id, end_date
