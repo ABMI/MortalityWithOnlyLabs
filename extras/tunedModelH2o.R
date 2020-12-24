@@ -343,6 +343,19 @@ contributions_automl %>%
   theme_minimal(base_size = 15) +
   geom_smooth()
 
+# shapley-base dependence plots for a numerical features: Alkaline
+contributions_automl %>%
+  as.data.frame() %>%
+  select(-BiasTerm) %>%
+  mutate(alkaline = as.vector(h_test[,5])) %>%
+  ggplot(aes(x = alkaline, y = Alkaline.phosphatase)) +
+  geom_point(aes(color = Alkaline.phosphatase), width = 0.1) +
+  scale_colour_gradient(low = "red", high = "blue", name = 'SHAP values') +
+  ylab('Shapley\'s values for alkaline feature') +
+  xlab('alkaline values') +w
+  theme_minimal(base_size = 15) +
+  geom_smooth()
+
 
 # # Shapley-based dependence plots for a categorical feature
 # SHAP_values %>%

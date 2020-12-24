@@ -19,7 +19,7 @@ cohortTable <- 'MortalityWithOnlyLabs'
 outputFolder <- '~/output/MortalityWithOnlyLabs'
 # add connection details:
 options(fftempdir = '~/fftemp')
-dbms <- ""
+dbms <- "sql server"
 user <- ''
 pw <- ''
 server <- ''
@@ -62,7 +62,7 @@ population <- PatientLevelPrediction::createStudyPopulation(plpData = plpData,
 # View(population)
 connection <- DatabaseConnector::connect(connectionDetails)
 ########################
-covariates <- c('3024561','3035995','3013682','3024128','3006906','3014576','3016723','3013721','3006923','3027484','3023314','3007461','3011904','3023103','3020630','3019550','3037556','3010813','3010156')
+covariates <- c('3024561','3035995','3013682','3024128','3006906','3014576','3016723','3013721','3006923','3027484','3023314','3007461','3011904','3023103','3020630','3019550','3037556','3010813','3020460')
 sql <- "select * from @cdmDatabaseSchema.measurement a, (select * from @cohortDatabaseSchema.@cohortTable where cohort_definition_id=1448) b
 where a.person_id=b.subject_id
 and (measurement_date >= cohort_start_date and measurement_date <= DATEADD(day, 3, cohort_end_date))
@@ -81,12 +81,19 @@ outcomeData <- unique(test2 %>% select(subjectId, outcomeCount))
 external_df <- reshape2::dcast(external_df, person_id ~ measurement_concept_id, value.var = 'value_as_number', fun.aggregate = mean, na.rm=T)
 external_df <- left_join(external_df, outcomeData, by = c("person_id"="subjectId"))
 #colnames(external_df) <- c("person_id", "Albumin", "Alkaline.phosphatase", "BUN", "Bilirubin..total", "Calcium", "Chloride", "Creatinine", "GOT..AST.", "GPT..ALT.", "Hb", "Hct", "PLT", "Phosphorus", "Potassium", "Protein..total", "Sodium", "Uric.Acid", "WBC", "hs.CRP.quantitation", "death_inhosp")
-colnames(external_df) <- c("person_id", "Calcium", "GPT..ALT.", "PLT", "hs.CRP.quantitation", "WBC", "Phosphorus", "BUN", "GOT..AST.", "Chloride", "Creatinine", "Sodium", "Protein..total", "Potassium", "Hct", "Bilirubin..total", "Albumin", "Hb", "Alkaline.phosphatase", "Uric.Acid", "death_inhosp")
+#colnames(external_df) <- c("person_id", "Calcium", "GPT..ALT.", "PLT", "hs.CRP.quantitation", "WBC", "Phosphorus", "BUN", "GOT..AST.", "Chloride", "Creatinine", "Sodium", "Protein..total", "Potassium", "Hct", "Bilirubin..total", "Albumin", "Hb", "Alkaline.phosphatase", "Uric.Acid", "death_inhosp")
+colnames(external_df) <- c("person_id", "Calcium", "GPT..ALT.", "PLT", "WBC", "Phosphorus", "BUN", "GOT..AST.", "Chloride", "Creatinine", "Sodium", "hs.CRP.quantitation", "Protein..total", "Potassium", "Hct", "Bilirubin..total", "Albumin", "Hb", "Alkaline.phosphatase", "Uric.Acid", "death_inhosp")
 
 external_df_h2o <- external_df
 
 external_df$countNA <- apply(external_df, 1, function(x) sum(is.na(x)))
 external_df_h2o <- external_df[external_df[,"countNA"]<2,]
+
+# person_id Calcium GPT..ALT. PLT   WBC Phosphorus  BUN GOT..AST. Chloride Creatinine Sodium hs.CRP.quantitation Protein..total Potassium   Hct Bilirubin..total Albumin
+#   182809    8.95     111.5  87  5.15   2.666667  7.5       318      101       1.75 140.25               14.89           4.65     3.975 27.06              5.3     3.3
+#   336394    9.20    1989.0  49  9.80   8.500000 18.3     26331       93       1.61 132.75               21.41           6.30     5.300 30.50              4.7     1.9
+#  2947254    7.70    1188.0 187 12.40  10.100000 43.0      1908       92       1.90 131.00               14.11           4.40     7.700 23.90              0.5     2.8
+
 ########################
 
 h2o.init()
@@ -134,7 +141,7 @@ XGB_AUTO_AUCPR_ext <- round(external_perf_automl@metrics$pr_auc, 2)
 rbind(DNN_AUCPR_ext, XGB_AUCPR_ext, GLM_AUCPR_ext, RF_AUCPR_ext, XGB_AUTO_AUCPR_ext)
 
 #Plotting
-list(model_dnn, model_gbm, model_xgb, model_glm, model_drf, automl@leader) %>%
+list(model_glm, model_dnn, model_drf, automl) %>%
   # map a function to each element in the list
   map(function(x) x %>% h2o.performance(external_df_h2o) %>%
         # from all these 'paths' in the object
@@ -145,7 +152,7 @@ list(model_dnn, model_gbm, model_xgb, model_glm, model_drf, automl@leader) %>%
         add_row(tpr=0,fpr=0,.before=T) %>%
         add_row(tpr=0,fpr=0,.before=F)) %>%
   # add a column of model name for future grouping in ggplot2
-  map2(c('dnn','gbm','xgb','glm', 'rf', 'automl'),
+  map2(c('GLM','DNN','RF', 'XGB'),
        function(x,y) x %>% add_column(model=y)) %>%
   # reduce six data.frame to one
   reduce(rbind) %>%
@@ -155,7 +162,7 @@ list(model_dnn, model_gbm, model_xgb, model_glm, model_drf, automl@leader) %>%
   geom_segment(aes(x=0,y=0,xend = 1, yend = 1),linetype = 2,col='grey')+
   xlab('False Positive Rate')+
   ylab('True Positive Rate')+
-  ggtitle('ROC Curve for Six Models (External valid [No attrition])')
+  ggtitle('ROC Curve for Four Models (External valid)')
 
 # Get table1
 external_df_h2o <- external_df
