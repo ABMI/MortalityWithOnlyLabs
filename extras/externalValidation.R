@@ -10,19 +10,19 @@ databaseName <- 'AUSOM'
 # add the cdm database schema with the data
 cdmDatabaseSchema <- 'CDMPv532.dbo'
 # add the work database schema this requires read/write privileges
-cohortDatabaseSchema <- 'cohortdb.dbo'
+cohortDatabaseSchema <- 'CDMPv1_Result.dbo' # 'cohortdb.dbo'
 # if using oracle please set the location of your temp schema
 oracleTempSchema <- NULL
 # the name of the table that will be created in cohortDatabaseSchema to hold the cohorts
 cohortTable <- 'MortalityWithOnlyLabs'
 # the location to save the prediction models results to:
-outputFolder <- '~/output/MortalityWithOnlyLabs'
+outputFolder <- '/home/cory66421/output/MortalityWithOnlyLabs'
 # add connection details:
 options(fftempdir = '~/fftemp')
 dbms <- "sql server"
-user <- ''
-pw <- ''
-server <- ''
+user <- 'jimyung'
+pw <- 'qwer1234!@'
+server <- '128.1.99.58'
 
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
@@ -70,19 +70,28 @@ and measurement_concept_id in (@covariates)"
 sql <- SqlRender::renderSql(sql=sql, cdmDatabaseSchema=cdmDatabaseSchema, cohortDatabaseSchema=cohortDatabaseSchema, cohortTable=cohortTable, covariates=covariates)$sql
 external_df <- DatabaseConnector::querySql(connection = connection, sql = sql)
 colnames(external_df) <- tolower(colnames(external_df))
-external_df <- external_df %>% select(person_id, measurement_concept_id, value_as_number)
+external_df <- external_df %>% select(person_id, measurement_date, measurement_concept_id, value_as_number)
 population2 <- population
 
-test2 <- left_join(population2, external_df, by=c("subjectId"="person_id"))
+test2 <- left_join(population2, external_df, by=c("subjectId"="person_id", "cohortStartDate"="measurement_date"))
 outcomeData <- unique(test2 %>% select(subjectId, outcomeCount))
 
 ## delete the patients who don't have measurement lab values?
 ## Seperate the person_id and measurement value columns then reshape the data frame. Then remerge the datasets.
-external_df <- reshape2::dcast(external_df, person_id ~ measurement_concept_id, value.var = 'value_as_number', fun.aggregate = mean, na.rm=T)
+external_df <- reshape2::dcast(external_df, person_id+measurement_date ~ measurement_concept_id, value.var = 'value_as_number', fun.aggregate = mean, na.rm=T)
 external_df <- left_join(external_df, outcomeData, by = c("person_id"="subjectId"))
+
+table(outcomeData$outcomeCount)
+#       0      1
+# 198914    369
+
+outcomeData %>% filter(subjectId=="3180794")
+
+# subset(external_df, (death_inhosp %in% NA)) %>% select(person_id)
+
 #colnames(external_df) <- c("person_id", "Albumin", "Alkaline.phosphatase", "BUN", "Bilirubin..total", "Calcium", "Chloride", "Creatinine", "GOT..AST.", "GPT..ALT.", "Hb", "Hct", "PLT", "Phosphorus", "Potassium", "Protein..total", "Sodium", "Uric.Acid", "WBC", "hs.CRP.quantitation", "death_inhosp")
 #colnames(external_df) <- c("person_id", "Calcium", "GPT..ALT.", "PLT", "hs.CRP.quantitation", "WBC", "Phosphorus", "BUN", "GOT..AST.", "Chloride", "Creatinine", "Sodium", "Protein..total", "Potassium", "Hct", "Bilirubin..total", "Albumin", "Hb", "Alkaline.phosphatase", "Uric.Acid", "death_inhosp")
-colnames(external_df) <- c("person_id", "Calcium", "GPT..ALT.", "PLT", "WBC", "Phosphorus", "BUN", "GOT..AST.", "Chloride", "Creatinine", "Sodium", "hs.CRP.quantitation", "Protein..total", "Potassium", "Hct", "Bilirubin..total", "Albumin", "Hb", "Alkaline.phosphatase", "Uric.Acid", "death_inhosp")
+colnames(external_df) <- c("person_id", "measurement_date", "Calcium", "GPT..ALT.", "PLT", "WBC", "Phosphorus", "BUN", "GOT..AST.", "Chloride", "Creatinine", "Sodium", "hs.CRP.quantitation", "Protein..total", "Potassium", "Hct", "Bilirubin..total", "Albumin", "Hb", "Alkaline.phosphatase", "Uric.Acid", "death_inhosp")
 
 external_df_h2o <- external_df
 
