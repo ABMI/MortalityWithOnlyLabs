@@ -1,3 +1,21 @@
+# @file externalValidation.R
+#
+# Copyright 2020 Observational Health Data Sciences and Informatics
+#
+# This file is part of FEARLESS
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
 #########External validation
 
 library(PatientLevelPrediction)
@@ -10,19 +28,19 @@ databaseName <- 'AUSOM'
 # add the cdm database schema with the data
 cdmDatabaseSchema <- 'CDMPv532.dbo'
 # add the work database schema this requires read/write privileges
-cohortDatabaseSchema <- 'CDMPv1_Result.dbo' # 'cohortdb.dbo'
+cohortDatabaseSchema <- 'cohortdb.dbo' # 'cohortdb.dbo'
 # if using oracle please set the location of your temp schema
 oracleTempSchema <- NULL
 # the name of the table that will be created in cohortDatabaseSchema to hold the cohorts
 cohortTable <- 'MortalityWithOnlyLabs'
 # the location to save the prediction models results to:
-outputFolder <- '/home/cory66421/output/MortalityWithOnlyLabs'
+outputFolder <- '~/output/MortalityWithOnlyLabs'
 # add connection details:
 options(fftempdir = '~/fftemp')
-dbms <- "sql server"
-user <- 'jimyung'
-pw <- 'qwer1234!@'
-server <- '128.1.99.58'
+dbms <- ""
+user <- ''
+pw <- ''
+server <- ''
 
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
@@ -55,8 +73,8 @@ population <- PatientLevelPrediction::createStudyPopulation(plpData = plpData,
                                                             binary = T,
                                                             includeAllOutcomes = T,
                                                             requireTimeAtRisk = T,
-                                                            minTimeAtRisk = 0,
-                                                            riskWindowStart = 1,
+                                                            minTimeAtRisk = 1,
+                                                            riskWindowStart = 4,
                                                             riskWindowEnd = 30,
                                                             removeSubjectsWithPriorOutcome = T)
 # View(population)
@@ -68,7 +86,10 @@ where a.person_id=b.subject_id
 and (measurement_date >= cohort_start_date and measurement_date <= DATEADD(day, 3, cohort_end_date))
 and measurement_concept_id in (@covariates)"
 sql <- SqlRender::renderSql(sql=sql, cdmDatabaseSchema=cdmDatabaseSchema, cohortDatabaseSchema=cohortDatabaseSchema, cohortTable=cohortTable, covariates=covariates)$sql
-external_df <- DatabaseConnector::querySql(connection = connection, sql = sql)
+features <- DatabaseConnector::querySql(connection = connection, sql = sql)
+
+#features
+
 colnames(external_df) <- tolower(colnames(external_df))
 external_df <- external_df %>% select(person_id, measurement_date, measurement_concept_id, value_as_number)
 population2 <- population
@@ -85,8 +106,6 @@ table(outcomeData$outcomeCount)
 #       0      1
 # 198914    369
 
-outcomeData %>% filter(subjectId=="3180794")
-
 # subset(external_df, (death_inhosp %in% NA)) %>% select(person_id)
 
 #colnames(external_df) <- c("person_id", "Albumin", "Alkaline.phosphatase", "BUN", "Bilirubin..total", "Calcium", "Chloride", "Creatinine", "GOT..AST.", "GPT..ALT.", "Hb", "Hct", "PLT", "Phosphorus", "Potassium", "Protein..total", "Sodium", "Uric.Acid", "WBC", "hs.CRP.quantitation", "death_inhosp")
@@ -97,11 +116,6 @@ external_df_h2o <- external_df
 
 external_df$countNA <- apply(external_df, 1, function(x) sum(is.na(x)))
 external_df_h2o <- external_df[external_df[,"countNA"]<2,]
-
-# person_id Calcium GPT..ALT. PLT   WBC Phosphorus  BUN GOT..AST. Chloride Creatinine Sodium hs.CRP.quantitation Protein..total Potassium   Hct Bilirubin..total Albumin
-#   182809    8.95     111.5  87  5.15   2.666667  7.5       318      101       1.75 140.25               14.89           4.65     3.975 27.06              5.3     3.3
-#   336394    9.20    1989.0  49  9.80   8.500000 18.3     26331       93       1.61 132.75               21.41           6.30     5.300 30.50              4.7     1.9
-#  2947254    7.70    1188.0 187 12.40  10.100000 43.0      1908       92       1.90 131.00               14.11           4.40     7.700 23.90              0.5     2.8
 
 ########################
 
@@ -237,3 +251,6 @@ model_metrics_tbl %>%
 
 
 
+colnames(features) <- tolower(colnames(features))
+a <- data.frame(features %>% group_by(person_id) %>%  mutate(min_date = min(measurement_date, na.rm = T)))
+a$datediff <- a$measurement_date - a$min_date
