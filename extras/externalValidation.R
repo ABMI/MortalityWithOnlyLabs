@@ -37,10 +37,10 @@ cohortTable <- 'MortalityWithOnlyLabs'
 outputFolder <- '~/output/MortalityWithOnlyLabs'
 # add connection details:
 options(fftempdir = '~/fftemp')
-dbms <- ""
-user <- ''
-pw <- ''
-server <- ''
+# dbms <- ""
+# user <- ''
+# pw <- ''
+# server <- ''
 
 connectionDetails <- DatabaseConnector::createConnectionDetails(dbms = dbms,
                                                                 server = server,
@@ -87,8 +87,7 @@ and (measurement_date >= cohort_start_date and measurement_date <= DATEADD(day, 
 and measurement_concept_id in (@covariates)"
 sql <- SqlRender::renderSql(sql=sql, cdmDatabaseSchema=cdmDatabaseSchema, cohortDatabaseSchema=cohortDatabaseSchema, cohortTable=cohortTable, covariates=covariates)$sql
 features <- DatabaseConnector::querySql(connection = connection, sql = sql)
-
-#features
+external_df <- features
 
 colnames(external_df) <- tolower(colnames(external_df))
 external_df <- external_df %>% select(person_id, measurement_date, measurement_concept_id, value_as_number)
@@ -97,10 +96,25 @@ population2 <- population
 test2 <- left_join(population2, external_df, by=c("subjectId"="person_id", "cohortStartDate"="measurement_date"))
 outcomeData <- unique(test2 %>% select(subjectId, outcomeCount))
 
-## delete the patients who don't have measurement lab values?
-## Seperate the person_id and measurement value columns then reshape the data frame. Then remerge the datasets.
 external_df <- reshape2::dcast(external_df, person_id+measurement_date ~ measurement_concept_id, value.var = 'value_as_number', fun.aggregate = mean, na.rm=T)
-external_df <- left_join(external_df, outcomeData, by = c("person_id"="subjectId"))
+temp <- external_df %>% select(person_id, measurement_date)
+temp1 <- temp
+for(i in 1:30){
+  temp2 <- temp1 %>% group_by(person_id)
+  temp3 <- temp2 %>% summarise(minDate=min(measurement_date))
+  temp2 <- left_join(temp2, temp3, by=c("person_id"="person_id"))
+  temp2$dateDiff <- temp2$measurement_date-temp2$minDate
+
+  assign(paste0("data", i), temp2 %>% filter(dateDiff<4))
+  temp1 <- temp2 %>% filter(dateDiff>=4) %>% select(-c(dateDiff, minDate))
+}
+rm(data27, data28, data29, data30)
+seqLabelData <- rbind(data1, data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,data13,data14,data15,data16,data17,data18,data19,data20,data21,data22,data23,data24,data25,data26)
+rm(data1, data2,data3,data4,data5,data6,data7,data8,data9,data10,data11,data12,data13,data14,data15,data16,data17,data18,data19,data20,data21,data22,data23,data24,data25,data26)
+
+test <- left_join(seqLabelData, external_df, by=c("person_id", "person_id"))
+
+
 
 table(outcomeData$outcomeCount)
 #       0      1
